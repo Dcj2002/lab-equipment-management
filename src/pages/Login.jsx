@@ -1,28 +1,76 @@
-import bg from './../assets/bg1.jpg'
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import AuthLayout from '../components/AuthLayout';
+import TextField from '../components/TextField';
+import Button from '../components/Button';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validate({ email, password }) {
+  const errors = {};
+  if (!email.trim()) errors.email = 'Email is required';
+  else if (!EMAIL_PATTERN.test(email)) errors.email = 'Enter a valid email address';
+  if (!password) errors.password = 'Password is required';
+  return errors;
+}
 
 function Login() {
-    return (
-        <div className="flex flex-col bg-cover bg-center h-screen w-full justify-center items-center p-50 pr-150 pl-150" 
-        style={{ backgroundImage: `url(${bg})`}}>
-            <div className="flex w-full max-w-md flex-col bg-gray-900/40 justify-center items-center p-8 gap-y-12 rounded-3xl backdrop-blur-3xl border border-white/25 shadow-2xl">
-                <h2 className="text-4xl text-white">Login</h2>bg-gray-300/30
-                
-                <div className="w-full flex justify-center items-center"> 
-                    <input type="text" className="w-full p-4 bg-gray-300/30 rounded-lg text-white" placeholder="Username" />
-                </div>
-                
-                <div className="w-full flex justify-center items-center">
-                    <input type="password" className="w-full p-4 bg-gray-300/30 rounded-lg text-white" placeholder="Password" />
-                </div>
-                
-                <div className="w-full flex justify-center items-center">
-                    <button type="submit" className="bg-red-500 w-full p-3 rounded-lg text-white cursor-pointer">
-                        Login
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: undefined });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const found = validate(form);
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+    // Step 4: send the credentials to the backend here.
+  }
+
+  return (
+    <AuthLayout title="Welcome back" subtitle="Sign in to manage and borrow lab equipment">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+        <TextField
+          dark
+          id="email"
+          name="email"
+          type="email"
+          label="Email"
+          placeholder="you@university.edu"
+          autoComplete="email"
+          value={form.email}
+          onChange={handleChange}
+          error={errors.email}
+        />
+        <TextField
+          dark
+          id="password"
+          name="password"
+          type="password"
+          label="Password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          value={form.password}
+          onChange={handleChange}
+          error={errors.password}
+        />
+        <Button type="submit" className="mt-2 w-full py-3">
+          Sign in
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-white/70">
+        Don&apos;t have an account?{' '}
+        <Link to="/register" className="font-semibold text-indigo-300 hover:text-indigo-200">
+          Register
+        </Link>
+      </p>
+    </AuthLayout>
+  );
 }
 
 export default Login;
